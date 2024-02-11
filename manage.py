@@ -1,13 +1,12 @@
-from handlers import set_lang_handler
+from handlers import set_lang_handler, start_handler, choose_command_handler
 
 
 def run():
     lang_dict = set_lang_handler()
+    start_handler(lang_dict=lang_dict)
 
-
-    with open('database.csv', newline='') as db:
-        while True:
-            pass
+    while True:
+        choose_command_handler(lang_dict=lang_dict)
 
 
 if __name__ == '__main__':
