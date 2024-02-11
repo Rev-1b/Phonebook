@@ -13,8 +13,12 @@ ru_lang = {
     'change_notes': 'Изменить записи ... \n\nХотите продолжить? y/n ... ',
 
     'require_input': 'Выберите действие: "{commands}" ...',
+
+    'chosen_show_list': 'Отображение страницы: \n\n',
+
     'chosen_add_note': 'Добавление новой записи:\n\n',
-    'input_note_data': 'Пожалуйста, введите {field_name}: ... '
+    'input_note_data': 'Пожалуйста, введите {field_name}: ... ',
+    'bad_phone_number': 'Введенный номер "{}" некорректен. Попробуйте снова: ... '
 }
 
 eng_lang = {

@@ -1,4 +1,5 @@
 from utils.utils import get_lang_val
+import re
 
 
 def _input_verified(command: str, options: tuple[str], lang_dict: dict[str, str]) -> bool:
@@ -19,4 +20,14 @@ def validate_command_input(message: str, options: list[str], lang_dict: dict[str
 
 
 def validate_data_input(message: str, field: str, lang_dict: dict[str, str]):
-    pass
+    field_value = input(message)
+    if field in ('personal_number', 'official_number'):
+        pattern = re.compile(r"(0|91|\+7|8)?[6-9][0-9]{9}")
+
+        while not pattern.match(field_value):
+            field_value = input(get_lang_val(key='bad_phone_number', lang_dict=lang_dict))
+
+    else:
+        field_value = field_value.capitalize()
+
+    return field_value
