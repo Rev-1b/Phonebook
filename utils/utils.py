@@ -5,3 +5,5 @@ def get_lang_val(key: str, lang_dict: dict[str, str]) -> str:
             f'The language dictionary is incorrectly configured. Key "{key}" is missing.'
         )
     return value
+
+

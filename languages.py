@@ -1,25 +1,25 @@
-from utils.utils import get_lang_val
-
-
-def get_lang_codes() -> list[str]:
-    return (get_lang_val(key='code', lang_dict=lang) for lang in _registered_languages)
-
-
 ru_lang = {
-    'code': 'RU',
-    'choose_lang': f'Добрый день! Перед началом работы выберите язык интерфейса: {get_lang_codes()}',
-    'start': 'Приветствие',
+    'notfound_command': 'Проверьте введенное значение! Введенное {command} не соответствует списку допустимых '
+                        'значений {options}.\n',
+    'try_again': 'Попробуйте еще раз: ',
+    'start': 'Добро пожаловать в приложение "Интерактивная телефонная книга"!\n\n'
+             'Перед тем, как начать, предлагаем пройти короткое обучение, в котором будет показано, как пользоваться'
+             'программой.\n\nХотите пройти обучение? y/n ... ',
+    'require_input': 'Введите команду: ...'
 }
 
 eng_lang = {
-    'code': 'EN',
-    'choose_lang': f'Good afternoon. Before you start, select your interface language: {get_lang_codes()}',
+    'notfound_command': 'Проверьте введенное значение! Введенное {command} не соответствует списку допустимых '
+                        'значений {options}.',
+    'try_again': 'Попробуйте еще раз: ',
     'start': 'Приветствие',
 }
 
-_registered_languages = (
-    ru_lang,
-    eng_lang,
-)
+registered_languages = {
+    'RU': ru_lang,
+    'ENG': eng_lang,
+}
 
 
+def get_lang_codes() -> list[str]:
+    return [code for code in registered_languages]
