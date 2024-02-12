@@ -19,7 +19,7 @@ def validate_command_input(message: str, options: list[str], lang_dict: dict[str
     return input_command
 
 
-def validate_data_input(message: str, field: str, lang_dict: dict[str, str]):
+def validate_data_input(message: str, field: str, lang_dict: dict[str, str]) -> str:
     field_value = input(message)
     if field in ('personal_number', 'official_number'):
         pattern = re.compile(r"(0|91|\+7|8)?[6-9][0-9]{9}")
@@ -31,3 +31,7 @@ def validate_data_input(message: str, field: str, lang_dict: dict[str, str]):
         field_value = field_value.capitalize()
 
     return field_value
+
+
+def validate_query_input(lang_dict: dict[str, str]) -> list[str]:
+    pass

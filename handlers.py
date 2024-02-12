@@ -1,13 +1,15 @@
 from languages import eng_lang, get_lang_codes, registered_languages
 from utils.utils import get_lang_val
-from validators import validate_command_input, validate_data_input
+from validators import validate_command_input, validate_data_input, validate_query_input
 import pandas as pd
+import tabulate as tab
 
 pd.set_option('display.max_columns', None)
 
 
 def set_lang_handler() -> dict[str, str]:
-    message = f'Good afternoon!\nBefore you start, select your interface language: {", ".join(get_lang_codes())} ... '
+    message = (f'Good afternoon!\n'
+               f'Before you start, select your interface language: {", ".join(get_lang_codes())} ... ')
     lang_code = validate_command_input(message=message, options=get_lang_codes(), lang_dict=eng_lang)
 
     return registered_languages.get(lang_code.upper())
@@ -40,7 +42,7 @@ def choose_command_handler(lang_dict: dict[str, str]) -> None:
 def show_list_handler(lang_dict: dict[str, str]) -> None:
     print(get_lang_val(key='chosen_show_list', lang_dict=lang_dict))
     db = pd.read_csv('database.csv', sep=',')
-    print(db)
+    print(tab.tabulate(db))
 
 
 def add_note_handler(lang_dict: dict[str, str]) -> None:
@@ -52,11 +54,22 @@ def add_note_handler(lang_dict: dict[str, str]) -> None:
         field_value = validate_data_input(message=message, field=field, lang_dict=lang_dict)
         person[field] = field_value
 
-    db = pd.read_csv('database.csv', sep=',')
+    db = pd.read_csv('database.csv', index_col='pk')
     db.loc[len(db.index)] = person.values()
-    print()
-    db.to_csv('database.csv', sep=',')
 
+    print(get_lang_val(key='note_add_success', lang_dict=lang_dict))
+    print(tab.tabulate(db.tail(3)), end='\n\n')
+
+    db.to_csv('database.csv')
+
+
+def find_notes_handler(lang_dict: dict[str, str]) -> None:
+    print(get_lang_val(key='chosen_find_notes', lang_dict=lang_dict))
+
+    while True:
+        query = validate_query_input()
+        message = get_lang_val(key='add_query', lang_dict=lang_dict)
+        further = validate_command_input(message=message, options=['y', 'n'], lang_dict=lang_dict)
 
 
 database_fields = {
@@ -72,4 +85,5 @@ commands = {
     'help': show_tutorial_handler,
     'add_note': add_note_handler,
     'show_list': show_list_handler,
+    'find_notes': find_notes_handler,
 }
