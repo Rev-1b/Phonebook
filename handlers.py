@@ -1,8 +1,6 @@
-import pandas
-
 from languages import eng_lang, get_lang_codes, registered_languages
 from utils.utils import get_lang_val
-from validators import validate_command_input, validate_data_input, validate_query_input
+from validators import validate_command_input, validate_data_input, validate_query_input, validate_change_input
 import pandas as pd
 import tabulate as tab
 
@@ -78,11 +76,17 @@ def change_notes_handler(lang_dict: dict[str, str]) -> None:
     query = _get_query(lang_dict)
 
     db = pd.read_csv('database.csv')
-    db.loc[db.query(query).index]
+    db = db.loc[db.query(query).index]
+    print(tab.tabulate(db))
+
+    new_fields_vals = validate_change_input(database_fields, lang_dict)
+    db[new_fields_vals.keys()] = new_fields_vals.values()
+
+    db.to_csv('database.csv')
 
 
-def _get_query(lang_dict: dict[str, str]) -> str:
-    queries, field = [], None
+def _get_query(lang_dict: dict[str, str]) -> tuple[str]:
+    queries = []
     further = 'y'
 
     while further == 'y':
@@ -93,7 +97,7 @@ def _get_query(lang_dict: dict[str, str]) -> str:
         further = validate_command_input(message=message, options=['y', 'n'], lang_dict=lang_dict)
 
     union_query = f'({") & (".join(queries)})'
-    return field, union_query
+    return union_query
 
 
 database_fields = {
@@ -121,4 +125,5 @@ commands = {
     'add_note': add_note_handler,
     'show_list': show_list_handler,
     'find_notes': find_notes_handler,
+    'change_notes': change_notes_handler,
 }
