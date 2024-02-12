@@ -1,3 +1,5 @@
+import pandas
+
 from languages import eng_lang, get_lang_codes, registered_languages
 from utils.utils import get_lang_val
 from validators import validate_command_input, validate_data_input, validate_query_input
@@ -65,11 +67,33 @@ def add_note_handler(lang_dict: dict[str, str]) -> None:
 
 def find_notes_handler(lang_dict: dict[str, str]) -> None:
     print(get_lang_val(key='chosen_find_notes', lang_dict=lang_dict))
+    query = _get_query(lang_dict)
 
-    while True:
-        query = validate_query_input()
+    db = pd.read_csv('database.csv')
+    print(tab.tabulate(db.loc[db.query(query).index]))
+
+
+def change_notes_handler(lang_dict: dict[str, str]) -> None:
+    print(get_lang_val(key='chosen_find_notes', lang_dict=lang_dict))
+    query = _get_query(lang_dict)
+
+    db = pd.read_csv('database.csv')
+    db.loc[db.query(query).index]
+
+
+def _get_query(lang_dict: dict[str, str]) -> str:
+    queries, field = [], None
+    further = 'y'
+
+    while further == 'y':
+        query = validate_query_input(allowed_query_operations, lang_dict)
+        queries.append(query)
+
         message = get_lang_val(key='add_query', lang_dict=lang_dict)
         further = validate_command_input(message=message, options=['y', 'n'], lang_dict=lang_dict)
+
+    union_query = f'({") & (".join(queries)})'
+    return field, union_query
 
 
 database_fields = {
@@ -79,6 +103,17 @@ database_fields = {
     'organisation': 'Имя Организации',
     'official_number': 'Рабочий номер',
     'personal_number': 'Личный номер',
+}
+
+# At the moment, filtering fields is only available by the equal sign, however,
+# to add new operations it is enough to register them in this dictionary
+allowed_query_operations = {
+    'last_name': ('==',),
+    'first_name': ('==',),
+    'middle_name': ('==',),
+    'organisation': ('==',),
+    'official_number': ('==',),
+    'personal_number': ('==',),
 }
 
 commands = {
