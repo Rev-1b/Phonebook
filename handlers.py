@@ -24,7 +24,7 @@ def start_handler(lang_dict: dict[str, str]) -> None:
 
 
 def show_tutorial_handler(lang_dict: dict[str, str]) -> None:
-    tutorial_steps = ('short_description', 'show_list', 'add_note', 'find_notes', 'change_notes',)
+    tutorial_steps = ('short_description', 'show_page', 'add_note', 'find_notes', 'change_notes',)
 
     for step in tutorial_steps:
         message = get_lang_val(key=step, lang_dict=lang_dict)
@@ -40,9 +40,9 @@ def choose_command_handler(lang_dict: dict[str, str]) -> None:
     commands[command](lang_dict=lang_dict)
 
 
-def show_list_handler(lang_dict: dict[str, str]) -> None:
+def show_page_handler(lang_dict: dict[str, str]) -> None:
     print(get_lang_val(key='chosen_show_list', lang_dict=lang_dict))
-    df = pd.read_csv('database.csv')
+    df = pd.read_csv('database.csv', index_col='pk')
     further = True
 
     while further:
@@ -52,10 +52,7 @@ def show_list_handler(lang_dict: dict[str, str]) -> None:
         else:
             offset = paginate_by * (page - 1)
 
-            print(df[offset:offset + paginate_by])
-
-    db = pd.read_csv('database.csv')
-    print(tab.tabulate(db))
+            print(tab.tabulate(df[offset:offset + paginate_by]))
 
 
 def add_note_handler(lang_dict: dict[str, str]) -> None:
@@ -81,7 +78,10 @@ def find_notes_handler(lang_dict: dict[str, str]) -> None:
     query = _get_query(lang_dict)
 
     df = pd.read_csv('database.csv')
-    print(tab.tabulate(df.loc[df.query(query).index]))
+    if len(df) == 0:
+        print(get_lang_val('bad_query', lang_dict))
+    else:
+        print(tab.tabulate(df.loc[df.query(query).index]))
 
 
 def change_notes_handler(lang_dict: dict[str, str]) -> None:
@@ -89,13 +89,18 @@ def change_notes_handler(lang_dict: dict[str, str]) -> None:
     query = _get_query(lang_dict)
 
     df = pd.read_csv('database.csv', index_col='pk')
-    print(tab.tabulate(df.loc[df.query(query).index]))
 
-    new_fields = validate_change_input(database_fields, lang_dict)
+    temp_df = df.loc[df.query(query).index]
+    if len(temp_df) == 0:
+        print(get_lang_val('bad_query', lang_dict))
+    else:
+        print(tab.tabulate(temp_df))
 
-    df.loc[df.query(query).index, new_fields.keys()] = tuple(new_fields.values())
+        new_fields = validate_change_input(database_fields, lang_dict)
 
-    df.to_csv('database.csv')
+        df.loc[df.query(query).index, new_fields.keys()] = tuple(new_fields.values())
+
+        df.to_csv('database.csv')
 
 
 def _get_query(lang_dict: dict[str, str]) -> tuple[str]:
@@ -136,7 +141,7 @@ allowed_query_operations = {
 commands = {
     'help': show_tutorial_handler,
     'add_note': add_note_handler,
-    'show_list': show_list_handler,
+    'show_page': show_page_handler,
     'find_notes': find_notes_handler,
     'change_notes': change_notes_handler,
 }

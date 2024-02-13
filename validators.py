@@ -22,10 +22,13 @@ def validate_show_input(pages: int, lang_dict: dict[str, str]) -> str:
     message = get_lang_val('chose_page', lang_dict).format(pages=pages)
     page = input(message)
 
-    while page != 'exit' and (page not in map(str, range(pages))):
-        pass
+    while page not in ['exit', *map(str, range(1, pages + 1))]:
+        if page.isdigit():
+            page = input(get_lang_val('bad_page', lang_dict))
+        else:
+            page = input(get_lang_val('bad_command', lang_dict))
 
-
+    return int(page) if page.isdigit() else None
 
 
 def validate_command_input(message: str,
@@ -126,7 +129,7 @@ def validate_change_input(fields: dict[str, str],
 
 
     """
-    raw_input = input(get_lang_val('change_fields', lang_dict).format(fields=fields.keys()))
+    raw_input = input(get_lang_val('change_fields', lang_dict).format(fields=', '.join(fields.keys())))
     managed_data = raw_input.split()
 
     while any(field not in fields for field in managed_data):
@@ -138,5 +141,3 @@ def validate_change_input(fields: dict[str, str],
         result[field] = field_value
 
     return result
-
-

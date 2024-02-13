@@ -33,6 +33,7 @@ ru_lang = {
     'sub_arg_err': '',
     # at this moment, value is empty due to the lack of operators who care about the type of input data
     'add_query': 'Хотите добавить еще одно условие фильтрации? "y/n" ... ',
+    'bad_query': 'По вашему запросу не найдено ни одной записи!',
 
     'chosen_change_notes': '\nИзменение записей:\n',
     'change_fields': 'Укажите через пробел, какие поля вы хотите изменить: "{fields}"\n ... ',
