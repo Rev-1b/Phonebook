@@ -29,6 +29,12 @@ def exit_handler(lang_dict: dict[str, str]) -> None:
 
 
 def show_tutorial_handler(lang_dict: dict[str, str]) -> None:
+    """
+
+    Goes through all training points, the user is given the opportunity
+    to exit the training mode at any time.
+
+    """
     tutorial_steps = ('short_description', 'show_page', 'add_note', 'find_notes', 'change_notes',)
 
     for step in tutorial_steps:
@@ -40,18 +46,32 @@ def show_tutorial_handler(lang_dict: dict[str, str]) -> None:
 
 
 def choose_command_handler(lang_dict: dict[str, str]) -> None:
+    """
+
+    Basic function that calls a specific handler depending on the command
+    entered by the user.
+
+    """
     message = get_lang_val(key='require_input', lang_dict=lang_dict).format(commands=', '.join(commands.keys()))
     command = validate_command_input(message=message, options=commands.keys(), lang_dict=lang_dict)
     commands[command](lang_dict=lang_dict)
 
 
 def show_page_handler(lang_dict: dict[str, str]) -> None:
+    """
+
+    The function will request and display the page as requested by
+    the user until the 'exit' command is received.
+    The number of records displayed on an individual page is configured in
+    the paginate_by variable.
+
+    """
     print(get_lang_val(key='chosen_show_list', lang_dict=lang_dict))
     df = pd.read_csv('database.csv', index_col='pk')
     further = True
 
     while further:
-        page = validate_show_input(len(df) // paginate_by + 1, lang_dict)
+        page = validate_show_input((max(1, len(df)) - 1) // paginate_by + 1, lang_dict)
         if page is None:
             further = False
         else:
@@ -60,6 +80,15 @@ def show_page_handler(lang_dict: dict[str, str]) -> None:
 
 
 def add_note_handler(lang_dict: dict[str, str]) -> None:
+    """
+
+    Prompts the user for the value of all fields contained in
+    the database_field collection.
+    Adds a new entry to the data file based on the received values.
+    For a new entry, the id is obtained by finding the number
+    of entries in the file.
+
+    """
     print(get_lang_val(key='chosen_add_note', lang_dict=lang_dict))
     person = {}
 
@@ -78,6 +107,12 @@ def add_note_handler(lang_dict: dict[str, str]) -> None:
 
 
 def find_notes_handler(lang_dict: dict[str, str]) -> None:
+    """
+
+    Gets the query string by which the DataFrame filters.
+    If nothing is found for the request, it notifies the user about this.
+
+    """
     print(get_lang_val(key='chosen_find_notes', lang_dict=lang_dict))
     query = _get_query(lang_dict)
 
@@ -88,7 +123,15 @@ def find_notes_handler(lang_dict: dict[str, str]) -> None:
         print(tab.tabulate(df.loc[df.query(query).index]))
 
 
-def change_notes_handler(lang_dict: dict[str, str]) -> None:
+def edit_notes_handler(lang_dict: dict[str, str]) -> None:
+    """
+    Gets the query string by which the DataFrame filters.
+    If nothing is found for the request, it notifies the user about this.
+
+    After receiving the filtered DataFrame, changes the required
+    values of the records and saves the new value
+
+    """
     print(get_lang_val(key='chosen_find_notes', lang_dict=lang_dict))
     query = _get_query(lang_dict)
 
@@ -108,6 +151,12 @@ def change_notes_handler(lang_dict: dict[str, str]) -> None:
 
 
 def _get_query(lang_dict: dict[str, str]) -> tuple[str]:
+    """
+
+    Until the user decides to finish, new queries are requested.
+    Then the function combines all received requests into one and returns it.
+
+    """
     queries = []
     further = 'y'
 
@@ -142,11 +191,13 @@ allowed_query_operations = {
     'personal_number': ('==',),
 }
 
+
+# All commands specified in this collection become available to the user in the main menu
 commands = {
     'help': show_tutorial_handler,
     'add_note': add_note_handler,
     'show_page': show_page_handler,
     'find_notes': find_notes_handler,
-    'change_notes': change_notes_handler,
+    'edit_notes': edit_notes_handler,
     'exit': exit_handler,
 }

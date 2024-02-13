@@ -1,3 +1,5 @@
+from typing import Optional
+
 from utils.utils import get_lang_val
 import re
 
@@ -7,6 +9,8 @@ def _input_verified(command: str,
                     lang_dict: dict[str, str]
                     ) -> bool:
     """
+
+    Checks if what the user entered is an available command
 
     """
     if command not in options:
@@ -18,7 +22,15 @@ def _input_verified(command: str,
     return True
 
 
-def validate_show_input(pages: int, lang_dict: dict[str, str]) -> str:
+def validate_show_input(pages: int, lang_dict: dict[str, str]) -> Optional[None, str]:
+    """
+
+    Checks whether the user entered an existing page number or exit command.
+    If a valid number is entered, returns it.
+
+    When receiving the exit command, returns None
+
+    """
     message = get_lang_val('chose_page', lang_dict).format(pages=pages)
     page = input(message)
 
@@ -37,6 +49,7 @@ def validate_command_input(message: str,
                            ) -> str:
     """
 
+    Requires you to enter the correct command until it gets it.
 
     """
     input_command = input(message).strip()
@@ -52,6 +65,9 @@ def validate_data_input(message: str,
                         lang_dict: dict[str, str]
                         ) -> str:
     """
+
+    The entered password must be verified using a regular expression.
+    If a non-password field is entered, it is capitalized
 
     """
     field_value = input(message).strip()
@@ -129,7 +145,11 @@ def validate_change_input(fields: dict[str, str],
                           ) -> dict[str, str]:
     """
 
-
+    Receives a raw string from the user, which should list all
+    the fields to be changed separated by spaces.
+    If at least one field is specified incorrectly, it requires
+    you to enter a new value. Next, for each selected field, it
+    prompts you to specify a new value.
 
     """
     raw_input = input(get_lang_val('change_fields', lang_dict).format(fields=', '.join(fields.keys())))
