@@ -18,12 +18,21 @@ def _input_verified(command: str,
     return True
 
 
+def validate_show_input(pages: int, lang_dict: dict[str, str]) -> str:
+    message = get_lang_val('chose_page', lang_dict).format(pages=pages)
+    page = input(message)
+
+    while page != 'exit' and (page not in map(str, range(pages))):
+        pass
+
+
+
+
 def validate_command_input(message: str,
                            options: list[str],
                            lang_dict: dict[str, str]
                            ) -> str:
     """
-
 
 
     """

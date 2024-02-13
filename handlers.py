@@ -1,10 +1,11 @@
 from languages import eng_lang, get_lang_codes, registered_languages
-from utils.utils import get_lang_val
-from validators import validate_command_input, validate_data_input, validate_query_input, validate_change_input
+from validators import *
+
 import pandas as pd
 import tabulate as tab
 
 pd.set_option('display.max_columns', None)
+paginate_by = 5
 
 
 def set_lang_handler() -> dict[str, str]:
@@ -41,7 +42,19 @@ def choose_command_handler(lang_dict: dict[str, str]) -> None:
 
 def show_list_handler(lang_dict: dict[str, str]) -> None:
     print(get_lang_val(key='chosen_show_list', lang_dict=lang_dict))
-    db = pd.read_csv('database.csv', sep=',')
+    df = pd.read_csv('database.csv')
+    further = True
+
+    while further:
+        page = validate_show_input(len(df) // paginate_by + 1, lang_dict)
+        if page is None:
+            further = False
+        else:
+            offset = paginate_by * (page - 1)
+
+            print(df[offset:offset + paginate_by])
+
+    db = pd.read_csv('database.csv')
     print(tab.tabulate(db))
 
 
@@ -54,35 +67,35 @@ def add_note_handler(lang_dict: dict[str, str]) -> None:
         field_value = validate_data_input(message=message, field=field, lang_dict=lang_dict)
         person[field] = field_value
 
-    db = pd.read_csv('database.csv', index_col='pk')
-    db.loc[len(db.index)] = person.values()
+    df = pd.read_csv('database.csv', index_col='pk')
+    df.loc[len(df.index)] = person.values()
 
     print(get_lang_val(key='note_add_success', lang_dict=lang_dict))
-    print(tab.tabulate(db.tail(3)), end='\n\n')
+    print(tab.tabulate(df.tail(3)), end='\n\n')
 
-    db.to_csv('database.csv')
+    df.to_csv('database.csv')
 
 
 def find_notes_handler(lang_dict: dict[str, str]) -> None:
     print(get_lang_val(key='chosen_find_notes', lang_dict=lang_dict))
     query = _get_query(lang_dict)
 
-    db = pd.read_csv('database.csv')
-    print(tab.tabulate(db.loc[db.query(query).index]))
+    df = pd.read_csv('database.csv')
+    print(tab.tabulate(df.loc[df.query(query).index]))
 
 
 def change_notes_handler(lang_dict: dict[str, str]) -> None:
     print(get_lang_val(key='chosen_find_notes', lang_dict=lang_dict))
     query = _get_query(lang_dict)
 
-    db = pd.read_csv('database.csv')
-    db = db.loc[db.query(query).index]
-    print(tab.tabulate(db))
+    df = pd.read_csv('database.csv', index_col='pk')
+    print(tab.tabulate(df.loc[df.query(query).index]))
 
-    new_fields_vals = validate_change_input(database_fields, lang_dict)
-    db[new_fields_vals.keys()] = new_fields_vals.values()
+    new_fields = validate_change_input(database_fields, lang_dict)
 
-    db.to_csv('database.csv')
+    df.loc[df.query(query).index, new_fields.keys()] = tuple(new_fields.values())
+
+    df.to_csv('database.csv')
 
 
 def _get_query(lang_dict: dict[str, str]) -> tuple[str]:
