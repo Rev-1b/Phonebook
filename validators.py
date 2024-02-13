@@ -56,7 +56,10 @@ def validate_data_input(message: str,
     """
     field_value = input(message).strip()
     if field in ('personal_number', 'official_number'):
-        pattern = re.compile(r"(0|91|\+7|8)?[6-9][0-9]{9}")
+        regex = (r'^\+((?:9[679]|8[035789]|6[789]|5[90]|42|3[578]|2[1-689])|9[0-58]'
+                 '|8[1246]|6[0-6]|5[1-8]|4[013-9]|3[0-469]|2[70]|7|1)(?:\W*\d){0,13}\d$')
+
+        pattern = re.compile(regex)
 
         while not pattern.match(field_value):
             field_value = input(get_lang_val(key='bad_phone_number', lang_dict=lang_dict)).strip()

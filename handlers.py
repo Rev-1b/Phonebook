@@ -23,6 +23,11 @@ def start_handler(lang_dict: dict[str, str]) -> None:
         show_tutorial_handler(lang_dict=lang_dict)
 
 
+def exit_handler(lang_dict: dict[str, str]) -> None:
+    print(get_lang_val('exit_message', lang_dict))
+    exit()
+
+
 def show_tutorial_handler(lang_dict: dict[str, str]) -> None:
     tutorial_steps = ('short_description', 'show_page', 'add_note', 'find_notes', 'change_notes',)
 
@@ -30,7 +35,7 @@ def show_tutorial_handler(lang_dict: dict[str, str]) -> None:
         message = get_lang_val(key=step, lang_dict=lang_dict)
         further = validate_command_input(message=message, options=['y', 'n'], lang_dict=lang_dict)
 
-        if not further:
+        if further == 'n':
             break
 
 
@@ -51,8 +56,7 @@ def show_page_handler(lang_dict: dict[str, str]) -> None:
             further = False
         else:
             offset = paginate_by * (page - 1)
-
-            print(tab.tabulate(df[offset:offset + paginate_by]))
+            print('\n' + tab.tabulate(df[offset:offset + paginate_by]), end='\n\n')
 
 
 def add_note_handler(lang_dict: dict[str, str]) -> None:
@@ -68,7 +72,7 @@ def add_note_handler(lang_dict: dict[str, str]) -> None:
     df.loc[len(df.index)] = person.values()
 
     print(get_lang_val(key='note_add_success', lang_dict=lang_dict))
-    print(tab.tabulate(df.tail(3)), end='\n\n')
+    print(tab.tabulate(df.tail(1)), end='\n\n')
 
     df.to_csv('database.csv')
 
@@ -94,7 +98,7 @@ def change_notes_handler(lang_dict: dict[str, str]) -> None:
     if len(temp_df) == 0:
         print(get_lang_val('bad_query', lang_dict))
     else:
-        print(tab.tabulate(temp_df))
+        print(tab.tabulate(temp_df.tail(5)))
 
         new_fields = validate_change_input(database_fields, lang_dict)
 
@@ -144,4 +148,5 @@ commands = {
     'show_page': show_page_handler,
     'find_notes': find_notes_handler,
     'change_notes': change_notes_handler,
+    'exit': exit_handler,
 }
