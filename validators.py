@@ -1,6 +1,4 @@
 from typing import Optional
-
-from utils.utils import get_lang_val
 import re
 
 
@@ -14,15 +12,12 @@ def _input_verified(command: str,
 
     """
     if command not in options:
-        print(get_lang_val(key='notfound_command',
-                           lang_dict=lang_dict
-                           ).format(command=command,
-                                    options=', '.join(options)))
+        print(lang_dict.get('notfound_command', '__ERROR__').format(command=command, options=', '.join(options)))
         return False
     return True
 
 
-def validate_show_input(pages: int, lang_dict: dict[str, str]) -> Optional[None, str]:
+def validate_show_input(pages: int, lang_dict: dict[str, str]) -> Optional[str]:
     """
 
     Checks whether the user entered an existing page number or exit command.
@@ -31,14 +26,14 @@ def validate_show_input(pages: int, lang_dict: dict[str, str]) -> Optional[None,
     When receiving the exit command, returns None
 
     """
-    message = get_lang_val('chose_page', lang_dict).format(pages=pages)
+    message = lang_dict.get('chose_page', '__ERROR__').format(pages=pages)
     page = input(message)
 
     while page not in ['exit', *map(str, range(1, pages + 1))]:
         if page.isdigit():
-            page = input(get_lang_val('bad_page', lang_dict))
+            page = input(lang_dict.get('bad_page', '__ERROR__'))
         else:
-            page = input(get_lang_val('bad_command', lang_dict))
+            page = input(lang_dict.get('bad_command', '__ERROR__'))
 
     return int(page) if page.isdigit() else None
 
@@ -54,8 +49,8 @@ def validate_command_input(message: str,
     """
     input_command = input(message).strip()
 
-    while not _input_verified(command=input_command, options=options, lang_dict=lang_dict):
-        input_command = input(get_lang_val(key='try_again', lang_dict=lang_dict)).strip()
+    while not _input_verified(input_command, options, lang_dict):
+        input_command = input(lang_dict.get('try_again', '__ERROR__')).strip()
 
     return input_command
 
@@ -78,9 +73,7 @@ def validate_data_input(message: str,
         pattern = re.compile(regex)
 
         while not pattern.match(field_value):
-            field_value = input(get_lang_val(key='bad_phone_number', lang_dict=lang_dict)).strip()
-    else:
-        field_value = field_value.capitalize()
+            field_value = input(lang_dict.get('bad_phone_number', '__ERROR__')).strip()
 
     return field_value
 
@@ -97,7 +90,7 @@ def _get_query_obj(options: tuple[str],
     If the "options" parameter is None, no check occurs
     """
 
-    message = (get_lang_val(message_key, lang_dict))
+    message = (lang_dict.get(message_key, '__ERROR__'))
 
     if options is not None:
         message = message.format(options=', '.join(options))
@@ -105,7 +98,7 @@ def _get_query_obj(options: tuple[str],
     arg = input(message).strip()
 
     while options is not None and arg not in options:
-        arg = input(get_lang_val(err_message_key, lang_dict)).strip()
+        arg = input(lang_dict.get(err_message_key, '__ERROR__')).strip()
 
     return arg
 
@@ -152,15 +145,15 @@ def validate_change_input(fields: dict[str, str],
     prompts you to specify a new value.
 
     """
-    raw_input = input(get_lang_val('change_fields', lang_dict).format(fields=', '.join(fields.keys())))
+    raw_input = input(lang_dict.get('change_fields', '__ERROR__').format(fields=', '.join(fields.keys())))
     managed_data = raw_input.split()
 
     while any(field not in fields for field in managed_data):
-        managed_data = input(get_lang_val('unexpected_field', lang_dict)).split()
+        managed_data = input(lang_dict.get('unexpected_field', '__ERROR__')).split()
 
     result = {}
     for field in managed_data:
-        field_value = input(get_lang_val('change_field', lang_dict).format(field_name=fields[field]))
+        field_value = input(lang_dict.get('change_field', '__ERROR__').format(field_name=fields[field]))
         result[field] = field_value
 
     return result

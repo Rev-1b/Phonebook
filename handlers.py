@@ -2,7 +2,7 @@ from languages import eng_lang, get_lang_codes, registered_languages
 from validators import *
 
 import pandas as pd
-import tabulate as tab
+from tabulate import tabulate
 
 pd.set_option('display.max_columns', None)
 paginate_by = 5
@@ -11,20 +11,20 @@ paginate_by = 5
 def set_lang_handler() -> dict[str, str]:
     message = (f'Good afternoon!\n'
                f'Before you start, select your interface language: {", ".join(get_lang_codes())} ... ')
-    lang_code = validate_command_input(message=message, options=get_lang_codes(), lang_dict=eng_lang)
+    lang_code = validate_command_input(message, get_lang_codes(), eng_lang)
 
     return registered_languages.get(lang_code.upper())
 
 
 def start_handler(lang_dict: dict[str, str]) -> None:
-    message = get_lang_val(key='start', lang_dict=lang_dict)
-    show_tutorial = validate_command_input(message=message, options=['y', 'n'], lang_dict=lang_dict)
+    message = lang_dict.get('start', '__ERROR__')
+    show_tutorial = validate_command_input(message, options=['y', 'n'], lang_dict=lang_dict)
     if show_tutorial == 'y':
-        show_tutorial_handler(lang_dict=lang_dict)
+        show_tutorial_handler(lang_dict)
 
 
 def exit_handler(lang_dict: dict[str, str]) -> None:
-    print(get_lang_val('exit_message', lang_dict))
+    print(lang_dict.get('exit_message', '__ERROR__'))
     exit()
 
 
@@ -38,8 +38,8 @@ def show_tutorial_handler(lang_dict: dict[str, str]) -> None:
     tutorial_steps = ('short_description', 'show_page', 'add_note', 'find_notes', 'change_notes',)
 
     for step in tutorial_steps:
-        message = get_lang_val(key=step, lang_dict=lang_dict)
-        further = validate_command_input(message=message, options=['y', 'n'], lang_dict=lang_dict)
+        message = lang_dict.get(step, '__ERROR__')
+        further = validate_command_input(message, options=['y', 'n'], lang_dict=lang_dict)
 
         if further == 'n':
             break
@@ -52,9 +52,9 @@ def choose_command_handler(lang_dict: dict[str, str]) -> None:
     entered by the user.
 
     """
-    message = get_lang_val(key='require_input', lang_dict=lang_dict).format(commands=', '.join(commands.keys()))
-    command = validate_command_input(message=message, options=commands.keys(), lang_dict=lang_dict)
-    commands[command](lang_dict=lang_dict)
+    message = lang_dict.get('require_input', '__ERROR__').format(commands=', '.join(commands.keys()))
+    command = validate_command_input(message, commands.keys(), lang_dict)
+    commands[command](lang_dict)
 
 
 def show_page_handler(lang_dict: dict[str, str]) -> None:
@@ -66,9 +66,13 @@ def show_page_handler(lang_dict: dict[str, str]) -> None:
     the paginate_by variable.
 
     """
-    print(get_lang_val(key='chosen_show_list', lang_dict=lang_dict))
+    print(lang_dict.get('chosen_show_list', '__ERROR__'))
     df = pd.read_csv('database.csv', index_col='pk')
     further = True
+
+    if len(df) == 0:
+        print(lang_dict.get('empty_table', '__ERROR__'))
+        return
 
     while further:
         page = validate_show_input((max(1, len(df)) - 1) // paginate_by + 1, lang_dict)
@@ -76,7 +80,8 @@ def show_page_handler(lang_dict: dict[str, str]) -> None:
             further = False
         else:
             offset = paginate_by * (page - 1)
-            print('\n' + tab.tabulate(df[offset:offset + paginate_by]), end='\n\n')
+            print('\n' + tabulate(df[offset:offset + paginate_by], headers=['ID', *database_fields.values()]),
+                  end='\n\n')
 
 
 def add_note_handler(lang_dict: dict[str, str]) -> None:
@@ -89,19 +94,19 @@ def add_note_handler(lang_dict: dict[str, str]) -> None:
     of entries in the file.
 
     """
-    print(get_lang_val(key='chosen_add_note', lang_dict=lang_dict))
+    print(lang_dict.get('chosen_add_note', '__ERROR__'))
     person = {}
 
     for field, field_name in database_fields.items():
-        message = get_lang_val(key='input_note_data', lang_dict=lang_dict).format(field_name=field_name)
-        field_value = validate_data_input(message=message, field=field, lang_dict=lang_dict)
+        message = lang_dict.get('input_note_data', '__ERROR__').format(field_name=field_name)
+        field_value = validate_data_input(message, field, lang_dict)
         person[field] = field_value
 
     df = pd.read_csv('database.csv', index_col='pk')
     df.loc[len(df.index)] = person.values()
 
-    print(get_lang_val(key='note_add_success', lang_dict=lang_dict))
-    print(tab.tabulate(df.tail(1)), end='\n\n')
+    print(lang_dict.get('note_add_success', '__ERROR__'))
+    print(tabulate(df.tail(1), headers=['ID', *database_fields.values()]), end='\n\n')
 
     df.to_csv('database.csv')
 
@@ -113,14 +118,14 @@ def find_notes_handler(lang_dict: dict[str, str]) -> None:
     If nothing is found for the request, it notifies the user about this.
 
     """
-    print(get_lang_val(key='chosen_find_notes', lang_dict=lang_dict))
+    print(lang_dict.get('chosen_find_notes', '__ERROR__'))
     query = _get_query(lang_dict)
 
     df = pd.read_csv('database.csv')
     if len(df) == 0:
-        print(get_lang_val('bad_query', lang_dict))
+        print(lang_dict.get('bad_query', '__ERROR__'))
     else:
-        print(tab.tabulate(df.loc[df.query(query).index]))
+        print(tabulate(df.loc[df.query(query).index], headers=['ID', *database_fields.values()]))
 
 
 def edit_notes_handler(lang_dict: dict[str, str]) -> None:
@@ -132,16 +137,16 @@ def edit_notes_handler(lang_dict: dict[str, str]) -> None:
     values of the records and saves the new value
 
     """
-    print(get_lang_val(key='chosen_find_notes', lang_dict=lang_dict))
+    print(lang_dict.get('chosen_find_notes', '__ERROR__'))
     query = _get_query(lang_dict)
 
     df = pd.read_csv('database.csv', index_col='pk')
 
     temp_df = df.loc[df.query(query).index]
     if len(temp_df) == 0:
-        print(get_lang_val('bad_query', lang_dict))
+        print(lang_dict.get('bad_query', '__ERROR__'))
     else:
-        print(tab.tabulate(temp_df.tail(5)))
+        print(tabulate(temp_df.tail(5), headers=['ID', *database_fields.values()]))
 
         new_fields = validate_change_input(database_fields, lang_dict)
 
@@ -164,20 +169,20 @@ def _get_query(lang_dict: dict[str, str]) -> tuple[str]:
         query = validate_query_input(allowed_query_operations, lang_dict)
         queries.append(query)
 
-        message = get_lang_val(key='add_query', lang_dict=lang_dict)
-        further = validate_command_input(message=message, options=['y', 'n'], lang_dict=lang_dict)
+        message = lang_dict.get('add_query', '__ERROR__')
+        further = validate_command_input(message, options=['y', 'n'], lang_dict=lang_dict)
 
     union_query = f'({") & (".join(queries)})'
     return union_query
 
 
 database_fields = {
-    'last_name': 'Фамилия',
-    'first_name': 'Имя',
-    'middle_name': 'Отчество',
-    'organisation': 'Имя Организации',
-    'official_number': 'Рабочий номер',
-    'personal_number': 'Личный номер',
+    'last_name': 'Last Name',
+    'first_name': 'First Name',
+    'middle_name': 'Middle Name',
+    'organisation': 'Organisation',
+    'official_number': 'Official Number',
+    'personal_number': 'Personal Number',
 }
 
 # At the moment, filtering fields is only available by the equal sign, however,
@@ -190,7 +195,6 @@ allowed_query_operations = {
     'official_number': ('==',),
     'personal_number': ('==',),
 }
-
 
 # All commands specified in this collection become available to the user in the main menu
 commands = {

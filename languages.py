@@ -48,11 +48,12 @@ ru_lang = {
                     'Для начала, процесс аналогичен команде "find_notes", однако после составления запроса вам также\n'
                     'будет необходимо указать поля для изменения. Далее вам будет предложено указать новое значение\n'
                     'для всех выбранных полей.\n\n'
-                    'Введите что угодно, чтобы перейти в главное меню ... ',
+                    'Введите "y", чтобы перейти в главное меню ... ',
 
     'require_input': '\nВыберите действие: "{commands}"\n ... ',
 
     'chosen_show_list': '\n---------- ОТОБРАЖЕНИЕ СТРАНИЦЫ ----------\n',
+    'empty_table': 'На данный момент, таблица пуста\n',
     'chose_page': 'Выберите номер страницы (от 1 до {pages}), либо "exit", чтобы выйти: \n ... ',
     'bad_page': 'Введенной страницы не существует. Попробуйте снова:\n ... ',
     'bad_command': 'Команда не распознана, проверьте введенное значение! \n ... ',
@@ -134,11 +135,12 @@ eng_lang = {
                     'it will be necessary to specify the fields to change.'
                     'Next you will be asked to specify a new value\n'
                     'for all selected fields.\n\n'
-                    'Enter anything to go to the main menu...',
+                    'Enter "y" to go to the main menu...',
 
     'require_input': '\nChoose an action: "{commands}"\n ... ',
 
     'chosen_show_list': '\n--------- PAGE DISPLAY ----------\n',
+    'empty_table': ' At this moment, the table is empty\n',
     'chose_page': 'Select page number (from 1 to {pages}), or "exit" to exit: \n ... ',
     'bad_page': 'The entered page does not exist. Try again:\n ... ',
     'bad_command': 'The command is not recognized, check the entered value! \n... ',
