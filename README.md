@@ -69,6 +69,120 @@
 
 ## <span id="handlers">handlers.py</span>
 
+Содержит в себе все хендлеры проекта, а также коллекции, в которых можно изменять как количество и название команд, так и поля нашей текстовой "базы данных".
+Как правило, каждый хендлер связан с собственным валидатором.
+Список всех хендлеров и их краткое описание:
+1. <a href="#set_lang_handler">set_lang_handler</a> - устанавливает язык интерфейса
+2. <a href="#start_handler">start_handler</a> - привествует пользователя и предлагает пройти обучение
+3. <a href="#show_tutorial_handler">show_tutorial_handler</a> - отображает пункты обучения пользователю по одному
+4. <a href="#choose_command_handler">choose_command_handlery</a> - обрабатывает поступившие от пользователя команды
+5. <a href="#show_page_handler">show_page_handler</a> - отображает пользователю выбранную страницу
+6. <a href="#add_note_handler">add_note_handler</a> - обрабатывает запрос на добавление новой записи в базу
+7. <a href="#find_notes_handler">find_notes_handler</a> - выводит пользователю все записи, прошедшие фильтрацию
+8. <a href="#edit_notes_handler">edit_notes_handler</a> - изменяет прошедшие фильтрацию записи
+9. <a href="#get_query">_get_query</a> - вспомогательная функция, предназначенная для составления сложного запроса 
+10. <a href="#exit_handler">exit_handler</a> - останавливает работу скрипта
+11. <a href="#database_fields">database_fields</a> - словарь, который содержит технические имена полей и их нормальное отображение для пользователя
+12. <a href="#allowed_query_operations">allowed_query_operations</a> - словарь, в котором для каждого поля определены допустимые операции сравнения
+13. <a href="#commands">commands</a> - словарь, который содержит имена команд для интерфейса и ссылки на их хендлеры
+
+### <span id="set_lang_handler" style="color:yellow">set_lang_handler() -> dict[str, str]</span>
+Единственный хендлер, который не зависит от выбранного языка системы. Все сообщения выводятся на английском. Возвращает определенный языковой пакет, который далее будет использован во всех остальных хендлерах.
+
+### <span id="start_handler" style="color:yellow">start_handler(lang_dict: dict[str, str]) -> None</span>
+Хендлер выведет приветственное сообщение пользователю и предложит пройти обучение. В случае согласия пользователя, передаст работу функции show_tutorial_handler()
+
+### <span id="show_tutorial_handler" style="color:yellow">show_tutorial_handler(lang_dict: dict[str, str]) -> None</span>
+Хендлер содержит в себе коллекцию с названиями всех пунктов обучения. Отображая каждый из них, он будет предлагать пользователю продолжить обучение или выйти.
+
+### <span id="choose_command_handler" style="color:yellow">choose_command_handler(lang_dict: dict[str, str]) -> None</span>
+Основной хендлер, который отображает пользователю список доступных команд, а затем вызывает хендлер выбранного действия. Отображает #только# команды, указанные в коллекции <a href="#commands">commands</a> 
+
+### <span id="show_page_handler" style="color:yellow">show_page_handler(lang_dict: dict[str, str]) -> None</span>
+Если база данный пуста, уведомляет пользователя об этом. В другом случае, отображает пользователю номера существующих страниц. Каждая страница содержит n записей, параметр n задается переменной paginate_by. Хендлер принимает от пользователя номер страницы, и отображает все записи, соответстующие номеру, через tabulate()
+
+### <span id="add_note_handler" style="color:yellow">add_note_handler(lang_dict: dict[str, str]) -> None</span>
+Запрашивает у пользователя значение всех полей базы кроме 'id'. Количество и название полей задается коллекцией <a href="#database_fields">database_fields</a>.
+Создаваемой записи присваивается id, получаемый путем прибавления 1 к длинне базы данных.
+Созданная запись отображается пользователю.
+
+### <span id="find_notes_handler" style="color:yellow">find_notes_handler(lang_dict: dict[str, str]) -> None</span>
+Получает от <a href="#get_query">_get_query</a> сформированный запрос и отображает результат. Если по запросу ничего не было найдено, уведомляет пользователя о некорректнности запроса.
+
+### <span id="edit_notes_handler" style="color:yellow">edit_notes_handler(lang_dict: dict[str, str]) -> None</span>
+Получает от <a href="#get_query">_get_query</a> сформированный запрос и отображает результат. Если по запросу ничего не было найдено, уведомляет пользователя о некорректнности запроса. Далее просит указать все поля, которые необходимо изменить. Получив список, дает пользователю возможность выбрать новое значение для указанных полей. После изменяет базу согласно запросу.
+
+### <span id="get_query" style="color:yellow">_get_query(lang_dict: dict[str, str]) -> None</span>
+Получает от своего валидатора простые query строки. Если их несколько, объединяет их в один сложный запрос. На данный момент между запросами возможна только логическое AND.
+
+### <span id="exit_handler" style="color:yellow">exit_handler(lang_dict: dict[str, str]) -> None</span>
+По команде, вызывает функцию exit(), которая завершает выполнение скрипта.
+
+### <span id="database_fields" style="color:brown">database_fields</span>
+Пример коллекции database_fields:
+
+database_fields = {
+
+    'last_name': 'Last Name',
+    'first_name': 'First Name',
+    'middle_name': 'Middle Name',
+    'organisation': 'Organisation',
+    'official_number': 'Official Number',
+    'personal_number': 'Personal Number',
+}
+
+### <span id="allowed_query_operations" style="color:brown">allowed_query_operations</span>
+Пример коллекции allowed_query_operations:
+
+allowed_query_operations = {
+
+    'last_name': ('==',),
+    'first_name': ('==',),
+    'middle_name': ('==',),
+    'organisation': ('==',),
+    'official_number': ('==',),
+    'personal_number': ('==',),
+}
+
+На данный момент, все поля базы поддерживают только операцию "==", однако при добавлении например поля age или salary, им можно будет добавить операции "<", "<=", ">", ">=".
+
+### <span id="commands" style="color:brown">commands</span>
+Пример коллекции commands:
+
+commands = {
+
+    'help': show_tutorial_handler,
+    'add_note': add_note_handler,
+    'show_page': show_page_handler,
+    'find_notes': find_notes_handler,
+    'edit_notes': edit_notes_handler,
+    'exit': exit_handler,
+}
+
+Эта коллекция задает связь между хендлерами и именами, по которым их может вызвать пользователь.
+
+## <span id="validators">validators.py</span>
+
+Содержит в себе валидаторы, которые будут проверять введенное пользователем значение и требовать ввести его еще раз, если значение не пройдет проверку.
+Как правило, каждый валидатор связан с собственным хендлером.
+У всех валидаторов схожий принцип работы - каждый из них содержит в себе цикл, который будет запрашивать у пользователя какое-либо значение до того момента,
+как оно станет корректным. Поэтому нет смысла подробно описывать работу каждого валидатора.
 
 
+## <span id="languages">languages.py</span>
+
+В этом файле содержатся все языковые пакеты в виде словаря, а также коллекция 'registered_languages', которой задается список языков, доступных пользователю.
+Для добавления нового языкового пакета, необходимо:
+1. Скопировать структуру готового языкового пакета
+2. Перевести все строки-значения словаря, не трогая знаки '\n' и все фигурные скобки со значениями внутри
+3. Зарегистрировать новый языковой пакет в коллекции 'registered_languages', где ключом будет языковой код, отображаемый пользователю, а значением - ссылка на словарь, являющийся новым языковым пакетом.
+
+
+## <span id="database">database.py</span>
+
+Файл в формате CSV, в котором разделителем должна выступать ',', а названиями столбцов должны быть:
+
+"pk,last_name,first_name,middle_name,organisation,official_number,personal_number"
+
+Ожидаемые названия столбцов можно изменить в коллекциях '<a href="#database_fields">database_fields</a>' и '<a href="#allowed_query_operations">allowed_query_operations</a>' в файле <a href="#handlers">handlers.py</a>. 
 

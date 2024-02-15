@@ -2,19 +2,22 @@ from typing import Optional
 import re
 
 
-def _input_verified(command: str,
-                    options: tuple[str],
-                    lang_dict: dict[str, str]
-                    ) -> bool:
+def validate_command_input(message: str,
+                           options: list[str],
+                           lang_dict: dict[str, str]
+                           ) -> str:
     """
 
-    Checks if what the user entered is an available command
+    Requires you to enter the correct command until it gets it.
 
     """
-    if command not in options:
-        print(lang_dict.get('notfound_command', '__ERROR__').format(command=command, options=', '.join(options)))
-        return False
-    return True
+    input_command = input(message).strip()
+
+    while input_command not in options:
+        print(lang_dict.get('notfound_command', '__ERROR__').format(command=input_command, options=', '.join(options)))
+        input_command = input(lang_dict.get('try_again', '__ERROR__')).strip()
+
+    return input_command
 
 
 def validate_show_input(pages: int, lang_dict: dict[str, str]) -> Optional[str]:
@@ -36,23 +39,6 @@ def validate_show_input(pages: int, lang_dict: dict[str, str]) -> Optional[str]:
             page = input(lang_dict.get('bad_command', '__ERROR__'))
 
     return int(page) if page.isdigit() else None
-
-
-def validate_command_input(message: str,
-                           options: list[str],
-                           lang_dict: dict[str, str]
-                           ) -> str:
-    """
-
-    Requires you to enter the correct command until it gets it.
-
-    """
-    input_command = input(message).strip()
-
-    while not _input_verified(input_command, options, lang_dict):
-        input_command = input(lang_dict.get('try_again', '__ERROR__')).strip()
-
-    return input_command
 
 
 def validate_data_input(message: str,

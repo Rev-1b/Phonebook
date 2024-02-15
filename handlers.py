@@ -23,11 +23,6 @@ def start_handler(lang_dict: dict[str, str]) -> None:
         show_tutorial_handler(lang_dict)
 
 
-def exit_handler(lang_dict: dict[str, str]) -> None:
-    print(lang_dict.get('exit_message', '__ERROR__'))
-    exit()
-
-
 def show_tutorial_handler(lang_dict: dict[str, str]) -> None:
     """
 
@@ -174,6 +169,11 @@ def _get_query(lang_dict: dict[str, str]) -> tuple[str]:
 
     union_query = f'({") & (".join(queries)})'
     return union_query
+
+
+def exit_handler(lang_dict: dict[str, str]) -> None:
+    print(lang_dict.get('exit_message', '__ERROR__'))
+    exit()
 
 
 database_fields = {
