@@ -141,7 +141,8 @@ def edit_notes_handler(lang_dict: dict[str, str]) -> None:
     if len(temp_df) == 0:
         print(lang_dict.get('bad_query', '__ERROR__'))
     else:
-        print(tabulate(temp_df.tail(5), headers=['ID', *database_fields.values()]))
+        print()
+        print(tabulate(temp_df.tail(5), headers=['ID', *database_fields.values()]), end='\n\n')
 
         new_fields = validate_change_input(database_fields, lang_dict)
 
