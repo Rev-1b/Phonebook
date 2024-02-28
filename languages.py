@@ -82,6 +82,8 @@ ru_lang = {
 }
 
 eng_lang = {
+    'select_language': 'Good afternoon!\n'
+                       'Before you start, select your interface language: {options} ... ',
     'notfound_command': 'Check the entered value! The entered "{command}" does not match the list of valid '
                         'values "{options}".\n',
     'try_again': 'Try again: ...  ',
@@ -170,8 +172,8 @@ eng_lang = {
 
 # When adding a new language pack, you must register the new language here
 registered_languages = {
-    'RU': ru_lang,
-    'ENG': eng_lang,
+    'ru': ru_lang,
+    'en': eng_lang,
 }
 
 

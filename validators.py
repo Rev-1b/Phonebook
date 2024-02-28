@@ -2,24 +2,6 @@ from typing import Optional
 import re
 
 
-def validate_command_input(message: str,
-                           options: list[str],
-                           lang_dict: dict[str, str]
-                           ) -> str:
-    """
-
-    Requires you to enter the correct command until it gets it.
-
-    """
-    input_command = input(message).strip()
-
-    while input_command not in options:
-        print(lang_dict.get('notfound_command', '__ERROR__').format(command=input_command, options=', '.join(options)))
-        input_command = input(lang_dict.get('try_again', '__ERROR__')).strip()
-
-    return input_command
-
-
 def validate_show_input(pages: int, lang_dict: dict[str, str]) -> Optional[str]:
     """
 
