@@ -4,16 +4,52 @@ from validators import *
 import pandas as pd
 from tabulate import tabulate
 
+from abc import ABC, abstractmethod
+
 pd.set_option('display.max_columns', None)
 paginate_by = 5
 
 
-def set_lang_handler() -> dict[str, str]:
-    message = (f'Good afternoon!\n'
-               f'Before you start, select your interface language: {", ".join(get_lang_codes())} ... ')
-    lang_code = validate_command_input(message, get_lang_codes(), eng_lang)
+class AbstractHandler(ABC):
+    def __init__(self, language: dict[str, str]):
+        self.language = language
 
-    return registered_languages.get(lang_code.upper())
+    @abstractmethod
+    def operation(self):
+        pass
+
+    @abstractmethod
+    def _validate_input(self, *args, **kwargs) -> str:
+        pass
+
+
+class SetLanguageHandler(AbstractHandler):
+    def operation(self):
+        lang_codes = get_lang_codes()
+        chosen_code = self._validate_input(lang_codes)
+
+        return registered_languages.get(chosen_code)
+
+    def _validate_input(self, lang_codes: list[str]) -> str:
+        """
+
+        Requires you to enter the correct command until it gets it.
+
+        """
+
+        initial_message = (f'Good afternoon!\n'
+                           f'Before you start, select your interface language: {", ".join(lang_codes)} ... ')
+
+        input_command = input(initial_message).strip()
+
+        while input_command not in lang_codes:
+
+            error_message = self.language.get('notfound_command', '__ERROR__')
+            print(error_message.format(command=input_command, options=', '.join(lang_codes)))
+
+            input_command = input(self.language.get('try_again', '__ERROR__')).strip()
+
+        return input_command
 
 
 def start_handler(lang_dict: dict[str, str]) -> None:
